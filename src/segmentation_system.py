@@ -502,7 +502,7 @@ if __name__ == "__main__":
     TIMESTAMP = str(time.hour) + "-" + str(time.minute) + "-" + str(time.hour)
 
     triple_dip_segmentation(input_name="fg_mg_bg.jpg", output_name="mnt", fg_hint="fg", bg_hint="bg",
-                            mg_hint="mg", first_step_iter_num=300, second_step_iter_num=600)
+                            mg_hint="mg", first_step_iter_num=300, second_step_iter_num=600, show_every=50)
 
 
 
