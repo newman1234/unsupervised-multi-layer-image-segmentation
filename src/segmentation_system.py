@@ -12,6 +12,8 @@ from scipy.stats import multinomial
 import runpy
 import datetime
 
+from tqdm.auto import tqdm
+
 SegmentationResult = namedtuple("SegmentationResult", ['mask', 'learned_mask', 'left', 'middle', 'right', 'psnr'])
 
 class SegmentationSystem(object):
@@ -172,18 +174,20 @@ class SegmentationSystem(object):
         self.gray_loss = GrayLoss().type(data_type)
 
     def _init_all(self):
+        print('==========  start init ==========')
         self._init_images()
         self._init_losses()
         self._init_nets()
         self._init_parameters()
         self._init_noise()
+        print('========== init  done ==========')
 
     def optimize(self):
         torch.backends.cudnn.enabled = True
         torch.backends.cudnn.benchmark = True
         # step 1
         optimizer = torch.optim.Adam(self.parameters, lr=self.learning_rate)
-        for j in range(self.first_step_iter_num):
+        for j in tqdm(range(self.first_step_iter_num), total=self.first_step_iter_num, desc='optimize step1'):
             optimizer.zero_grad()
             self._step1_optimization_closure(j)
             self._finalize_iteration()
@@ -194,9 +198,10 @@ class SegmentationSystem(object):
         if self.plot_during_training:
             self._step_plot_closure(1)
         # self.finalize_first_step()
+
         # step 2
         optimizer = torch.optim.Adam(self.parameters, lr=self.learning_rate)
-        for j in range(self.second_step_iter_num):
+        for j in tqdm(range(self.second_step_iter_num), total=self.second_step_iter_num, desc='optimize step2'):
             optimizer.zero_grad()
             self._step2_optimization_closure(j)
             self._finalize_iteration()
@@ -489,6 +494,7 @@ def triple_dip_segmentation(input_name, output_name, fg_hint, bg_hint, mg_hint,
     bg = prepare_image("input/images/segmentation_" + bg_hint + "/" + input_name)
     mg = prepare_image("input/images/segmentation_" + mg_hint + "/" + input_name)
 
+    print('========== start image segmentation ===========')
     image_segmentation("images/segmentation/" + output_name, img, plot_during_training=plot_during_training,
                        first_step_iter_num=first_step_iter_num,
                        second_step_iter_num=second_step_iter_num,
@@ -501,7 +507,7 @@ if __name__ == "__main__":
     time = datetime.datetime.now()
     TIMESTAMP = str(time.hour) + "-" + str(time.minute) + "-" + str(time.hour)
 
-    triple_dip_segmentation(input_name="fg_mg_bg.jpg", output_name="mnt", fg_hint="fg", bg_hint="bg",
+    triple_dip_segmentation(input_name="1rdaau.jpg", output_name="mnt", fg_hint="fg", bg_hint="bg",
                             mg_hint="mg", first_step_iter_num=300, second_step_iter_num=600, show_every=50)
 
 

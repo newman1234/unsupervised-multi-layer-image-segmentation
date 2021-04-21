@@ -7,7 +7,7 @@ def image_histogram_equalization(image):
     return cv2.equalizeHist(image)
 
 
-for saliency in glob.glob("input/images/segmentation/6Q2V7S.jpg"):
+for saliency in glob.glob("input/images/segmentation/1rdaau.jpg"):
     print(saliency)
     s = cv2.imread(saliency, 0)
 
